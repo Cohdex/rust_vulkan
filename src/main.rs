@@ -62,9 +62,13 @@ fn setup_logging() {
         .build(file_path)
         .unwrap();
 
-    // Log Info level output to file and the programmatically specified level to stdout.
+    // Log Debug level output to file and the programmatically specified level to stdout.
     let config = Config::builder()
-        .appender(Appender::builder().build("logfile", Box::new(logfile)))
+        .appender(
+            Appender::builder()
+                .filter(Box::new(ThresholdFilter::new(log::LevelFilter::Info)))
+                .build("logfile", Box::new(logfile)),
+        )
         .appender(
             Appender::builder()
                 .filter(Box::new(ThresholdFilter::new(stdout_level)))
@@ -74,7 +78,7 @@ fn setup_logging() {
             Root::builder()
                 .appender("stdout")
                 .appender("logfile")
-                .build(log::LevelFilter::Info),
+                .build(log::LevelFilter::Trace),
         )
         .unwrap();
 
