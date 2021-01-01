@@ -40,7 +40,7 @@ fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
 }
 
 fn setup_logging() {
-    // Use Debug level logging to stdout if debugging, otherwise Info level
+    // Use Debug level logging if debugging, otherwise Info level
     let level = if cfg!(debug_assertions) {
         log::LevelFilter::Debug
     } else {
@@ -50,12 +50,12 @@ fn setup_logging() {
     // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
     let pattern = "{d(%Y-%m-%d %H:%M:%S.%3f)} [{h({l:>5})}] {M}: {m}{n}";
 
-    // Build a stderr logger.
+    // Build a stderr logger
     let stdout = ConsoleAppender::builder()
         .encoder(Box::new(PatternEncoder::new(pattern)))
         .build();
 
-    // Logging to log file.
+    // Logging to log file
     let logfile = FileAppender::builder()
         .encoder(Box::new(PatternEncoder::new(pattern)))
         .build(file_path)
@@ -72,10 +72,7 @@ fn setup_logging() {
         )
         .unwrap();
 
-    // Use this to change log levels at runtime.
-    // This means you can change the default log level to trace
-    // if you are trying to debug an issue and need more logs on then turn it off
-    // once you are done.
+    // Use handle to change log levels at runtime
     let _handle = log4rs::init_config(config).expect("Failed to initialize logging");
 
     log::debug!("Logging initialized");
