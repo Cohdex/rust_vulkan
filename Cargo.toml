@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 log = "0.4"
 log4rs = "1.0"
+ash = "0.31.0"
+glfw = "0.41.0"
