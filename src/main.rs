@@ -1,39 +1,32 @@
-use glfw::{Action, Context, Key};
+mod events;
+mod window;
 
 fn main() {
     setup_logging();
 
-    let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).expect("Failed to initialize GLFW");
-
-    let (mut window, events) = glfw
-        .create_window(1280, 720, "Rust Vulkan Example", glfw::WindowMode::Windowed)
-        .expect("Failed to create GLFW window");
-
-    window.set_key_polling(true);
-    window.set_mouse_button_polling(true);
-    window.make_current();
-
+    let mut window = window::Window::new(1280, 720, "Rust Vulkan Example");
     log::info!("Window created");
 
-    while !window.should_close() {
+    while !window.is_close_requested() {
         window.swap_buffers();
-        glfw.poll_events();
-        for (_, event) in glfw::flush_messages(&events) {
-            handle_window_event(&mut window, event);
+        window.poll_events();
+        if window
+            .get_input_handler()
+            .was_key_pressed(glfw::Key::Escape)
+        {
+            window.set_close_requested(true);
+        }
+
+        if window.get_input_handler().is_key_down(glfw::Key::Space) {
+            log::info!("Jumping!");
+        }
+
+        if window.get_input_handler().was_key_released(glfw::Key::S) {
+            log::info!("Stopped moving forward");
         }
     }
 
     log::info!("Shutting down...");
-}
-
-fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
-    match event {
-        glfw::WindowEvent::Key(Key::Escape, _, Action::Press, _) => {
-            log::info!("'Escape' pressed");
-            window.set_should_close(true);
-        }
-        _ => log::debug!("Unhandled event: {:?}", event),
-    }
 }
 
 fn setup_logging() {
@@ -61,8 +54,8 @@ fn setup_logging() {
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open("logs/main.log")
-                .expect("Failed to create main log file"),
+                .open("logs/app.log")
+                .expect("Failed to create app log file"),
         )
         .apply()
         .unwrap();
