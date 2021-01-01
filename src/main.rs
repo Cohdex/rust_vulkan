@@ -3,7 +3,6 @@ use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
     config::{Appender, Config, Root},
     encode::pattern::PatternEncoder,
-    filter::threshold::ThresholdFilter,
 };
 
 fn main() {
@@ -42,7 +41,7 @@ fn handle_window_event(window: &mut glfw::Window, event: glfw::WindowEvent) {
 
 fn setup_logging() {
     // Use Debug level logging to stdout if debugging, otherwise Info level
-    let stdout_level = if cfg!(debug_assertions) {
+    let level = if cfg!(debug_assertions) {
         log::LevelFilter::Debug
     } else {
         log::LevelFilter::Info
@@ -62,23 +61,14 @@ fn setup_logging() {
         .build(file_path)
         .unwrap();
 
-    // Log Debug level output to file and the programmatically specified level to stdout.
     let config = Config::builder()
-        .appender(
-            Appender::builder()
-                .filter(Box::new(ThresholdFilter::new(log::LevelFilter::Info)))
-                .build("logfile", Box::new(logfile)),
-        )
-        .appender(
-            Appender::builder()
-                .filter(Box::new(ThresholdFilter::new(stdout_level)))
-                .build("stdout", Box::new(stdout)),
-        )
+        .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .appender(Appender::builder().build("logfile", Box::new(logfile)))
         .build(
             Root::builder()
                 .appender("stdout")
                 .appender("logfile")
-                .build(log::LevelFilter::Trace),
+                .build(level),
         )
         .unwrap();
 
