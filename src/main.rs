@@ -1,4 +1,3 @@
-use log::{debug, error, info, trace, warn, LevelFilter};
 use log4rs::{
     append::{console::ConsoleAppender, file::FileAppender},
     config::{Appender, Config, Root},
@@ -8,16 +7,14 @@ use log4rs::{
 
 fn main() {
     setup_logging();
-
-    error!("Goes to stderr and file");
-    warn!("Goes to stderr and file");
-    info!("Goes to stderr and file");
-    debug!("Goes to file only");
-    trace!("Goes to file only");
 }
 
 fn setup_logging() {
-    let level = log::LevelFilter::Info;
+    let level = if cfg!(debug_assertions) {
+        log::LevelFilter::Trace
+    } else {
+        log::LevelFilter::Info
+    };
     let file_path = "logs/main.log";
     // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
     let pattern = "{d(%Y-%m-%d %H:%M:%S.%3f)} [{h({l:>5})}] {M}: {m}{n}";
@@ -46,7 +43,7 @@ fn setup_logging() {
             Root::builder()
                 .appender("logfile")
                 .appender("stderr")
-                .build(LevelFilter::Trace),
+                .build(log::LevelFilter::Trace),
         )
         .unwrap();
 
@@ -55,4 +52,6 @@ fn setup_logging() {
     // if you are trying to debug an issue and need more logs on then turn it off
     // once you are done.
     let _handle = log4rs::init_config(config).unwrap();
+
+    log::debug!("Logging initialized");
 }
